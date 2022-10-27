@@ -7,18 +7,14 @@ const API_TOKEN = '5754083770:AAEXAmcQDliA23LesKLbKkZWShi0OzG5oYQ';
 try {
   $bot = new \TelegramBot\Api\Client('5754083770:AAEXAmcQDliA23LesKLbKkZWShi0OzG5oYQ');
 
-  // or initialize with botan.io tracker api key
-  // $bot = new \TelegramBot\Api\Client('YOUR_BOT_API_TOKEN', 'YOUR_BOTAN_TRACKER_API_KEY');
-
-
-  //Handle /ping command
+  //Handle /start command
   $bot->command('start', function ($message) use ($bot) {
-    $bot->sendMessage($message->getChat()->getId(), 'Hello!');
+    $bot->sendMessage($message->getChat()->getId(), 'Hello! ' . $message->getFrom()->getFirstName());
   });
 
   //Handle /ping command
-  $bot->command('ping', function ($message) use ($bot) {
-    $bot->sendMessage($message->getChat()->getId(), 'pong!');
+  $bot->command('next', function ($message) use ($bot) {
+    $bot->sendMessage($message->getChat()->getId(),  $message->getFrom()->getFirstName());
   });
 
   //Handle text messages
