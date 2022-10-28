@@ -9,14 +9,17 @@ const API_TOKEN = '5754083770:AAEXAmcQDliA23LesKLbKkZWShi0OzG5oYQ';
 
 $router = new Router();
 
-var_dump($_SERVER['REQUEST_URI']);
-$router->get('/api/ques', [QuesController::class, 'get']);
-$router->post('/api/ques', [QuesController::class, 'create']);
+
+$router->get('/api/ques', [QuesController::class, 'get', 'application/json']);
+$router->post('/api/ques', [QuesController::class, 'create', 'application/json']);
+
+//CHANGE REQUEST_URI
+$_SERVER['REQUEST_URI'] = str_ireplace('/elfasQBot', '', $_SERVER['REQUEST_URI']);
+if (strlen($_SERVER['REQUEST_URI']) > 1) {
+  $_SERVER['REQUEST_URI'] = preg_replace("#/$#", "", $_SERVER['REQUEST_URI']);
+}
 
 $router->resolve($_SERVER['REQUEST_URI'], strtolower($_SERVER['REQUEST_METHOD']));
-
-
-
 
 try {
   $bot = new \TelegramBot\Api\Client('5754083770:AAEXAmcQDliA23LesKLbKkZWShi0OzG5oYQ');
