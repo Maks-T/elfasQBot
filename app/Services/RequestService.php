@@ -4,14 +4,15 @@ namespace App\Services;
 
 class RequestService
 {
-  public function getData(): array
+  public function getData()
   {
     $req = json_decode(file_get_contents('php://input'));
-    $data = [];
+
+    /*$data = [];
     foreach ($req as $field => $valueField) {
       $data[$field] = str_replace(" ", "", $valueField);
-    }
+    }*/
 
-    return $data;
+    return $req;
   }
 }

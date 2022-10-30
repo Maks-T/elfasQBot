@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\DB\DataBase;
+namespace App\DB;
 
 use App\Exceptions\AppException;
 
@@ -20,7 +20,35 @@ class JsonDB
     $itemsJson = json_decode($json) ?? [];
 
     foreach ($itemsJson as $itemJson) {
-      $this->items[] = new $class((array)$itemJson);
+      $this->items[] = new $class($itemJson);
+    }
+  }
+
+  public function getSize(): int
+  {
+    return count($this->items);
+  }
+
+  public function getLastId(): int
+  {
+    return
+      count($this->items) !== 0
+      ? $this->items[count($this->items) - 1]->id
+      : 0;
+  }
+
+  public function createAll(array $items): ?array
+  {
+    try {
+      array_push($this->items, ...$items);
+      $this->saveItemsToFile();
+
+      return $items;
+    } catch (\Exception $e) {
+      throw new \Error(
+        AppException::fatalMessage(),
+        AppException::INTERNAL_SERVER_ERROR
+      );
     }
   }
 
@@ -39,7 +67,7 @@ class JsonDB
     }
   }
 
-  public function getByField(string $field, string $value): ?object
+  public function getByField(string $field, mixed $value): ?object
   {
     foreach ($this->items as $itemFind) {
       if (isset($itemFind->$field)) {
@@ -53,7 +81,7 @@ class JsonDB
     return null;
   }
 
-  public function updateByField(string $field, string $value, object $item): ?object
+  public function updateByField(string $field, mixed $value, object $item): ?object
   {
     try {
       foreach ($this->items as $index => $itemFind) {
@@ -75,7 +103,7 @@ class JsonDB
     }
   }
 
-  public function deleteByField(string $field, string $value): ?object
+  public function deleteByField(string $field, mixed $value): ?object
   {
     try {
 
@@ -97,6 +125,11 @@ class JsonDB
         AppException::INTERNAL_SERVER_ERROR
       );
     }
+  }
+
+  public function getAll(): array
+  {
+    return $this->items;
   }
 
   public function saveItemsToFile()

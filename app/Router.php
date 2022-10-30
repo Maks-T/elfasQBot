@@ -10,9 +10,15 @@ class Router
 {
   private array $routes = [];
 
+  private array $condRoutes = [];
+
   public function register(string $requestMethod, string $route, array $action): self
   {
     $this->routes[$requestMethod][$route] = $action;
+
+    if (strpos($route, ':')) {
+      $this->condRoutes[] = $route;
+    }
 
     return $this;
   }
@@ -52,7 +58,14 @@ class Router
   public function resolve(string $requestUri, string $requestMethod)
   {
     $route = explode('?', $requestUri)[0];
-    $action = $this->routes[$requestMethod][$route] ?? null;
+
+    $condRoute = $this->matchRoute($route);
+
+    if ($condRoute) {
+      $action = $this->routes[$requestMethod][$condRoute['route']] ?? null;
+    } else {
+      $action = $this->routes[$requestMethod][$route] ?? null;
+    }
 
     if (!$action) {
       throw new \Exception("", AppException::ROURE_NOT_FOUND);
@@ -66,10 +79,30 @@ class Router
       header("Content-Type: $contentType");
 
       if (method_exists($class, $method)) {
-        return call_user_func_array([$class, $method], []);
+        return $condRoute
+          ? call_user_func_array([$class, $method], [$condRoute['value']])
+          :
+          call_user_func_array([$class, $method], []);
       }
     }
 
     throw new \Exception("", AppException::ROURE_NOT_FOUND);
+  }
+
+  private function matchRoute(string $route): ?array
+  {
+    $baseRoute = substr($route, 0, strripos($route, '/'));
+
+    foreach ($this->condRoutes as $condRoute) {
+      $baseCondRoute = substr($condRoute, 0, strripos($condRoute, '/'));
+      if ($baseRoute == $baseCondRoute) {
+        $key = substr($condRoute, strpos($condRoute, ':') + 1);
+        $value = substr($route, strripos($route, '/') + 1);
+
+        return ['key' => $key, 'value' => $value, 'route' => $condRoute];
+      }
+    }
+
+    return null;
   }
 }

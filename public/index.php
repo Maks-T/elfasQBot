@@ -9,9 +9,11 @@ const API_TOKEN = '5754083770:AAEXAmcQDliA23LesKLbKkZWShi0OzG5oYQ';
 
 $router = new Router();
 
-
-$router->get('/api/ques', [QuesController::class, 'get', 'application/json']);
-$router->post('/api/ques', [QuesController::class, 'create', 'application/json']);
+$router->get('/api/ques', [QuesController::class, 'getAll', 'application/json']);
+$router->get('/api/ques/:id', [QuesController::class, 'get', 'application/json']);
+$router->post('/api/ques', [QuesController::class, 'createAll', 'application/json']);
+$router->put('/api/ques/:id', [QuesController::class, 'update', 'application/json']);
+$router->delete('/api/ques/:id', [QuesController::class, 'delete', 'application/json']);
 
 //CHANGE REQUEST_URI
 $_SERVER['REQUEST_URI'] = str_ireplace('/elfasQBot', '', $_SERVER['REQUEST_URI']);
