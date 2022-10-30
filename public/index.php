@@ -4,24 +4,12 @@ require '../vendor/autoload.php';
 
 use App\Router;
 use App\Controllers\QuesController;
+use App\Controllers\HomeController;
+use App\Bot;
 
-const API_TOKEN = '5754083770:AAEXAmcQDliA23LesKLbKkZWShi0OzG5oYQ';
 
-$router = new Router();
-
-$router->get('/api/ques', [QuesController::class, 'getAll', 'application/json']);
-$router->get('/api/ques/:id', [QuesController::class, 'get', 'application/json']);
-$router->post('/api/ques', [QuesController::class, 'createAll', 'application/json']);
-$router->put('/api/ques/:id', [QuesController::class, 'update', 'application/json']);
-$router->delete('/api/ques/:id', [QuesController::class, 'delete', 'application/json']);
-
-//CHANGE REQUEST_URI
-$_SERVER['REQUEST_URI'] = str_ireplace('/elfasQBot', '', $_SERVER['REQUEST_URI']);
-if (strlen($_SERVER['REQUEST_URI']) > 1) {
-  $_SERVER['REQUEST_URI'] = preg_replace("#/$#", "", $_SERVER['REQUEST_URI']);
-}
-
-$router->resolve($_SERVER['REQUEST_URI'], strtolower($_SERVER['REQUEST_METHOD']));
+$bot = new Bot();
+//////////////
 
 try {
   $bot = new \TelegramBot\Api\Client('5754083770:AAEXAmcQDliA23LesKLbKkZWShi0OzG5oYQ');
@@ -49,3 +37,22 @@ try {
 } catch (\TelegramBot\Api\Exception $e) {
   $e->getMessage();
 }
+
+/////////////
+
+$router = new Router();
+
+$router->get('/', [HomeController::class, 'index', 'text/html']);
+$router->get('/api/ques', [QuesController::class, 'getAll', 'application/json']);
+$router->get('/api/ques/:id', [QuesController::class, 'get', 'application/json']);
+$router->post('/api/ques', [QuesController::class, 'createAll', 'application/json']);
+$router->put('/api/ques/:id', [QuesController::class, 'update', 'application/json']);
+$router->delete('/api/ques/:id', [QuesController::class, 'delete', 'application/json']);
+
+//CHANGE REQUEST_URI
+$_SERVER['REQUEST_URI'] = str_ireplace('/elfasQBot', '', $_SERVER['REQUEST_URI']);
+if (strlen($_SERVER['REQUEST_URI']) > 1) {
+  $_SERVER['REQUEST_URI'] = preg_replace("#/$#", "", $_SERVER['REQUEST_URI']);
+}
+
+$router->resolve($_SERVER['REQUEST_URI'], strtolower($_SERVER['REQUEST_METHOD']));
