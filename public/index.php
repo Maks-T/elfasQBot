@@ -5,18 +5,36 @@ require '../vendor/autoload.php';
 use App\Router;
 use App\Controllers\QuesController;
 use App\Controllers\HomeController;
-use App\Bot;
+use App\Controllers\BotController;
+use App\Repositories\UserRepository;
+use App\Models\User;
 
 
-$bot = new Bot();
-//////////////
+$userRepository = new UserRepository();
 
 try {
   $bot = new \TelegramBot\Api\Client('5754083770:AAEXAmcQDliA23LesKLbKkZWShi0OzG5oYQ');
 
   //Handle /start command
-  $bot->command('start', function ($message) use ($bot) {
-    $bot->sendMessage($message->getChat()->getId(), 'Hello! ' . $message->getFrom()->getFirstName());
+  $bot->command('start', function ($message) use ($bot, $userRepository) {
+    // $bot->sendMessage($message->getChat()->getId(), 'Hello! ' . $message->getFrom()->getFirstName());
+
+    $userData = (object)[
+      "id" => $message->getFrom()->getId(),
+      "first_name" => $message->getFrom()->getFirstName(),
+      "last_name" => $message->getFrom()->getLastName(),
+      "username" => $message->getFrom()->getUsername()
+    ];
+
+    $user = new User($userData);
+
+    $userCreated = $userRepository->create($user);
+
+    if ($userCreated) {
+      $bot->sendMessage($message->getChat()->getId(), 'Hello! ' . $message->getFrom()->getFirstName());
+    } else {
+      $bot->sendMessage($message->getChat()->getId(), 'You are already registered');
+    }
   });
 
   //Handle /ping command
@@ -38,11 +56,10 @@ try {
   $e->getMessage();
 }
 
-/////////////
-
 $router = new Router();
 
 $router->get('/', [HomeController::class, 'index', 'text/html']);
+$router->get('/bot', [BotController::class, 'index', 'text/html']);
 $router->get('/api/ques', [QuesController::class, 'getAll', 'application/json']);
 $router->get('/api/ques/:id', [QuesController::class, 'get', 'application/json']);
 $router->post('/api/ques', [QuesController::class, 'createAll', 'application/json']);
